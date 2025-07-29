@@ -20,6 +20,9 @@ public class StreamingConfiguration {
     @NotNull
     @Valid
     private KafkaConfiguration kafka;
+    
+    @Valid
+    private InstanceConfiguration instance = new InstanceConfiguration();
 
     @Valid
     private ReconciliationConfiguration reconciliation = new ReconciliationConfiguration();
@@ -38,6 +41,8 @@ public class StreamingConfiguration {
     public void setSources(List<MQSourceConfiguration> sources) { this.sources = sources; }
     public KafkaConfiguration getKafka() { return kafka; }
     public void setKafka(KafkaConfiguration kafka) { this.kafka = kafka; }
+    public InstanceConfiguration getInstance() { return instance; }
+    public void setInstance(InstanceConfiguration instance) { this.instance = instance; }
     public ReconciliationConfiguration getReconciliation() { return reconciliation; }
     public void setReconciliation(ReconciliationConfiguration reconciliation) { this.reconciliation = reconciliation; }
     public PerformanceConfiguration getPerformance() { return performance; }
@@ -152,15 +157,22 @@ public class StreamingConfiguration {
      */
     public static class ReconciliationConfiguration {
         private boolean enabled = true;
+        private String mode = "local"; // local, distributed, hybrid
         private long reconciliationIntervalMs = 30000L;
         private int maxRetryAttempts = 3;
         private long retryBackoffMs = 5000L;
         private boolean enableDeadLetterQueue = true;
         private String deadLetterTopic = "streaming-dlq";
+        private int ttlHours = 24;
+        
+        // Distributed mode specific settings
+        private DistributedConfiguration distributed = new DistributedConfiguration();
 
         // Getters and setters
         public boolean isEnabled() { return enabled; }
         public void setEnabled(boolean enabled) { this.enabled = enabled; }
+        public String getMode() { return mode; }
+        public void setMode(String mode) { this.mode = mode; }
         public long getReconciliationIntervalMs() { return reconciliationIntervalMs; }
         public void setReconciliationIntervalMs(long reconciliationIntervalMs) { this.reconciliationIntervalMs = reconciliationIntervalMs; }
         public int getMaxRetryAttempts() { return maxRetryAttempts; }
@@ -171,6 +183,10 @@ public class StreamingConfiguration {
         public void setEnableDeadLetterQueue(boolean enableDeadLetterQueue) { this.enableDeadLetterQueue = enableDeadLetterQueue; }
         public String getDeadLetterTopic() { return deadLetterTopic; }
         public void setDeadLetterTopic(String deadLetterTopic) { this.deadLetterTopic = deadLetterTopic; }
+        public int getTtlHours() { return ttlHours; }
+        public void setTtlHours(int ttlHours) { this.ttlHours = ttlHours; }
+        public DistributedConfiguration getDistributed() { return distributed; }
+        public void setDistributed(DistributedConfiguration distributed) { this.distributed = distributed; }
     }
 
     /**
