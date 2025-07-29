@@ -1,0 +1,71 @@
+{
+  "profileName": "production",
+  "mqConfigurations": [
+    {
+      "queueManagerName": "PROD_QM_TRANSACTIONS",
+      "hostname": "mq-prod-01.company.com",
+      "port": 1414,
+      "channel": "SYSTEM.DEF.SVRCONN",
+      "queueName": "TRANSACTION.INPUT.QUEUE",
+      "userId": "${MQ_USER_ID}",
+      "password": "${MQ_PASSWORD}",
+      "messageContract": "transaction-v1",
+      "targetKafkaTopic": "transaction-events",
+      "consumerThreads": 10,
+      "maxBatchSize": 500,
+      "additionalProperties": {
+        "XMSC_WMQ_CLIENT_RECONNECT_OPTIONS": "67108864",
+        "XMSC_WMQ_CLIENT_RECONNECT_TIMEOUT": "3600"
+      }
+    },
+    {
+      "queueManagerName": "PROD_QM_PAYMENTS",
+      "hostname": "mq-prod-02.company.com",
+      "port": 1414,
+      "channel": "SYSTEM.DEF.SVRCONN",
+      "queueName": "PAYMENT.INPUT.QUEUE",
+      "userId": "${MQ_USER_ID}",
+      "password": "${MQ_PASSWORD}",
+      "messageContract": "payment-v1",
+      "targetKafkaTopic": "payment-events",
+      "consumerThreads": 8,
+      "maxBatchSize": 300,
+      "additionalProperties": {
+        "XMSC_WMQ_CLIENT_RECONNECT_OPTIONS": "67108864",
+        "XMSC_WMQ_CLIENT_RECONNECT_TIMEOUT": "3600"
+      }
+    }
+  ],
+  "kafkaConfiguration": {
+    "bootstrapServers": "kafka-prod-01:9092,kafka-prod-02:9092,kafka-prod-03:9092",
+    "securityProtocol": "SASL_SSL",
+    "saslMechanism": "PLAIN",
+    "saslJaasConfig": "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"${KAFKA_USERNAME}\" password=\"${KAFKA_PASSWORD}\";",
+    "batchSize": 131072,
+    "lingerMs": 5,
+    "bufferMemory": 268435456,
+    "compressionType": "lz4",
+    "maxInFlightRequestsPerConnection": 5,
+    "additionalProperties": {
+      "ssl.truststore.location": "/opt/app/certs/kafka.truststore.jks",
+      "ssl.truststore.password": "${TRUSTSTORE_PASSWORD}",
+      "ssl.keystore.location": "/opt/app/certs/kafka.keystore.jks",
+      "ssl.keystore.password": "${KEYSTORE_PASSWORD}",
+      "ssl.key.password": "${KEY_PASSWORD}"
+    }
+  },
+  "reconciliationConfiguration": {
+    "reconciliationIntervalMs": 15000,
+    "maxRetryAttempts": 5,
+    "retryBackoffMs": 3000,
+    "enableDeadLetterQueue": true,
+    "deadLetterTopic": "transaction-dlq"
+  },
+  "performanceConfiguration": {
+    "globalThreadPoolSize": 50,
+    "queueCapacity": 20000,
+    "keepAliveTimeMs": 300000,
+    "enableBackpressure": true,
+    "backpressureThreshold": 15000
+  }
+}

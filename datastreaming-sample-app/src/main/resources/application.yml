@@ -1,0 +1,180 @@
+# Sample Configuration for Data Streaming Framework
+# This shows how easy it is to configure multiple MQ sources with different contracts
+
+spring:
+  application:
+    name: sample-streaming-app
+
+# Data Streaming Framework Configuration
+datastreaming:
+  enabled: true
+  
+  # MQ Sources Configuration
+  sources:
+    # Financial Transactions Source
+    - name: "financial-transactions"
+      queueManagerName: "PROD_QM_FINANCE"
+      hostname: "mq-finance.company.com"
+      port: 1414
+      channel: "SYSTEM.DEF.SVRCONN"
+      queueName: "FINANCE.TRANSACTION.QUEUE"
+      userId: "${MQ_FINANCE_USER:admin}"
+      password: "${MQ_FINANCE_PASSWORD:password}"
+      sourceContract: "transaction-mq-v1"
+      targetTopic: "financial-transactions"
+      targetContract: "transaction-avro-v1"
+      consumerThreads: 10
+      maxBatchSize: 500
+      enabled: true
+      additionalProperties:
+        XMSC_WMQ_CLIENT_RECONNECT_OPTIONS: "67108864"
+    
+    # Payment Processing Source  
+    - name: "payment-processing"
+      queueManagerName: "PROD_QM_PAYMENTS"
+      hostname: "mq-payments.company.com" 
+      port: 1414
+      channel: "SYSTEM.DEF.SVRCONN"
+      queueName: "PAYMENTS.INPUT.QUEUE"
+      userId: "${MQ_PAYMENTS_USER:admin}"
+      password: "${MQ_PAYMENTS_PASSWORD:password}"
+      sourceContract: "payment-mq-v1"
+      targetTopic: "payment-events"
+      targetContract: "payment-avro-v1"
+      consumerThreads: 8
+      maxBatchSize: 300
+      enabled: true
+    
+    # Customer Events Source (Disabled in this environment)
+    - name: "customer-events"
+      queueManagerName: "PROD_QM_CUSTOMER"
+      hostname: "mq-customer.company.com"
+      port: 1414
+      channel: "SYSTEM.DEF.SVRCONN"
+      queueName: "CUSTOMER.EVENTS.QUEUE"
+      userId: "${MQ_CUSTOMER_USER:admin}"
+      password: "${MQ_CUSTOMER_PASSWORD:password}"
+      sourceContract: "customer-mq-v1"
+      targetTopic: "customer-events"
+      targetContract: "customer-avro-v1"
+      consumerThreads: 5
+      maxBatchSize: 200
+      enabled: false # Disabled for this deployment
+
+  # Kafka Configuration
+  kafka:
+    bootstrapServers: "kafka-prod-01:9092,kafka-prod-02:9092,kafka-prod-03:9092"
+    securityProtocol: "SASL_SSL"
+    saslMechanism: "PLAIN" 
+    saslJaasConfig: "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"${KAFKA_USERNAME}\" password=\"${KAFKA_PASSWORD}\";"
+    schemaRegistryUrl: "https://schema-registry.company.com"
+    schemaRegistryCredentials: "${SCHEMA_REGISTRY_CREDENTIALS}"
+    batchSize: 131072
+    lingerMs: 5
+    bufferMemory: 268435456
+    compressionType: "lz4"
+    maxInFlightRequestsPerConnection: 5
+    enableIdempotence: true
+    additionalProperties:
+      ssl.truststore.location: "/opt/app/certs/kafka.truststore.jks"
+      ssl.truststore.password: "${TRUSTSTORE_PASSWORD}"
+
+  # Reconciliation Configuration
+  reconciliation:
+    enabled: true
+    reconciliationIntervalMs: 15000
+    maxRetryAttempts: 5
+    retryBackoffMs: 3000
+    enableDeadLetterQueue: true
+    deadLetterTopic: "streaming-dlq"
+
+  # Performance Tuning
+  performance:
+    globalThreadPoolSize: 50
+    queueCapacity: 20000
+    keepAliveTimeMs: 300000
+    enableBackpressure: true
+    backpressureThreshold: 15000
+
+  # Monitoring Configuration
+  monitoring:
+    metricsEnabled: true
+    healthChecksEnabled: true
+    metricsPrefix: "sample_streaming"
+    metricsIntervalMs: 30000
+
+  # Security Configuration
+  security:
+    enableSsl: true
+    keystorePath: "/opt/app/certs/keystore.jks"
+    keystorePassword: "${KEYSTORE_PASSWORD}"
+    truststorePath: "/opt/app/certs/truststore.jks" 
+    truststorePassword: "${TRUSTSTORE_PASSWORD}"
+
+  # Contract Management
+  contracts:
+    type: "file" # Use file-based contracts for this example
+    location: "classpath:/contracts/"
+    autoReload: true
+    reloadIntervalMs: 300000
+
+# Application Configuration
+server:
+  port: 8080
+
+# Actuator Configuration  
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus,info
+  endpoint:
+    health:
+      show-details: always
+
+# Logging Configuration
+logging:
+  level:
+    com.datastreaming.framework: INFO
+    com.datastreaming.sample: DEBUG
+    org.apache.kafka: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{correlationId}] %logger{36} - %msg%n"
+
+---
+# Development Profile
+spring:
+  config:
+    activate:
+      on-profile: development
+
+datastreaming:
+  sources:
+    - name: "dev-transactions"
+      queueManagerName: "DEV_QM"
+      hostname: "localhost"
+      port: 1414
+      channel: "DEV.ADMIN.SVRCONN"
+      queueName: "DEV.TRANSACTION.QUEUE"
+      userId: "admin"
+      password: "passw0rd"
+      sourceContract: "transaction-mq-v1"
+      targetTopic: "dev-transactions"
+      targetContract: "transaction-avro-v1"
+      consumerThreads: 2
+      maxBatchSize: 50
+      enabled: true
+
+  kafka:
+    bootstrapServers: "localhost:9092"
+    securityProtocol: "PLAINTEXT"
+    schemaRegistryUrl: "http://localhost:8081"
+    batchSize: 16384
+    compressionType: "none"
+
+  security:
+    enableSsl: false
+
+logging:
+  level:
+    com.datastreaming.framework: DEBUG

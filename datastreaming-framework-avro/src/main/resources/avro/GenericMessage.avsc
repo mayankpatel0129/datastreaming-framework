@@ -1,0 +1,83 @@
+{
+  "type": "record",
+  "name": "GenericMessage", 
+  "namespace": "com.datastreaming.framework.avro.model",
+  "doc": "Generic message structure for data streaming framework",
+  "fields": [
+    {
+      "name": "messageId",
+      "type": "string",
+      "doc": "Unique message identifier"
+    },
+    {
+      "name": "correlationId", 
+      "type": ["null", "string"],
+      "default": null,
+      "doc": "Correlation identifier for message tracking"
+    },
+    {
+      "name": "timestamp",
+      "type": "long",
+      "doc": "Message timestamp in milliseconds since epoch"
+    },
+    {
+      "name": "source",
+      "type": "string",
+      "doc": "Source system identifier"
+    },
+    {
+      "name": "messageType",
+      "type": "string", 
+      "doc": "Type/category of the message"
+    },
+    {
+      "name": "version",
+      "type": ["null", "string"],
+      "default": null,
+      "doc": "Message schema version"
+    },
+    {
+      "name": "headers",
+      "type": {
+        "type": "map",
+        "values": "string"
+      },
+      "default": {},
+      "doc": "Message headers as key-value pairs"
+    },
+    {
+      "name": "payload",
+      "type": "string",
+      "doc": "Message payload as JSON string"
+    },
+    {
+      "name": "metadata",
+      "type": {
+        "type": "record",
+        "name": "MessageMetadata",
+        "fields": [
+          {
+            "name": "processingTime",
+            "type": ["null", "long"],
+            "default": null,
+            "doc": "Message processing timestamp"
+          },
+          {
+            "name": "retryCount",
+            "type": ["null", "int"],
+            "default": null,
+            "doc": "Number of retry attempts"
+          },
+          {
+            "name": "errorMessage",
+            "type": ["null", "string"],
+            "default": null,
+            "doc": "Error message if processing failed"
+          }
+        ]
+      },
+      "default": {"processingTime": null, "retryCount": null, "errorMessage": null},
+      "doc": "Message processing metadata"
+    }
+  ]
+}

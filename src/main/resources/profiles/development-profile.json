@@ -1,0 +1,45 @@
+{
+  "profileName": "development",
+  "mqConfigurations": [
+    {
+      "queueManagerName": "DEV_QM",
+      "hostname": "localhost",
+      "port": 1414,
+      "channel": "DEV.ADMIN.SVRCONN",
+      "queueName": "DEV.TRANSACTION.QUEUE",
+      "userId": "admin",
+      "password": "passw0rd",
+      "messageContract": "transaction-v1",
+      "targetKafkaTopic": "dev-transaction-events",
+      "consumerThreads": 2,
+      "maxBatchSize": 50,
+      "additionalProperties": {
+        "XMSC_WMQ_CLIENT_RECONNECT_OPTIONS": "67108864"
+      }
+    }
+  ],
+  "kafkaConfiguration": {
+    "bootstrapServers": "localhost:9092",
+    "securityProtocol": "PLAINTEXT",
+    "batchSize": 16384,
+    "lingerMs": 10,
+    "bufferMemory": 33554432,
+    "compressionType": "none",
+    "maxInFlightRequestsPerConnection": 5,
+    "additionalProperties": {}
+  },
+  "reconciliationConfiguration": {
+    "reconciliationIntervalMs": 60000,
+    "maxRetryAttempts": 3,
+    "retryBackoffMs": 5000,
+    "enableDeadLetterQueue": true,
+    "deadLetterTopic": "dev-dlq"
+  },
+  "performanceConfiguration": {
+    "globalThreadPoolSize": 10,
+    "queueCapacity": 1000,
+    "keepAliveTimeMs": 60000,
+    "enableBackpressure": false,
+    "backpressureThreshold": 800
+  }
+}

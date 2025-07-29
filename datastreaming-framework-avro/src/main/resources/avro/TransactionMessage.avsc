@@ -1,0 +1,127 @@
+{
+  "type": "record",
+  "name": "TransactionMessage",
+  "namespace": "com.datastreaming.framework.avro.model",
+  "doc": "Transaction message schema for financial transactions",
+  "fields": [
+    {
+      "name": "transactionId",
+      "type": "string",
+      "doc": "Unique transaction identifier"
+    },
+    {
+      "name": "accountId",
+      "type": "string", 
+      "doc": "Account identifier"
+    },
+    {
+      "name": "transactionType",
+      "type": {
+        "type": "enum",
+        "name": "TransactionType",
+        "symbols": ["DEBIT", "CREDIT", "TRANSFER", "PAYMENT", "REFUND"]
+      },
+      "doc": "Type of transaction"
+    },
+    {
+      "name": "amount",
+      "type": {
+        "type": "record",
+        "name": "Money",
+        "fields": [
+          {
+            "name": "value",
+            "type": "double",
+            "doc": "Monetary amount"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "doc": "Currency code (ISO 4217)"
+          }
+        ]
+      },
+      "doc": "Transaction amount with currency"
+    },
+    {
+      "name": "timestamp",
+      "type": "long",
+      "doc": "Transaction timestamp in milliseconds since epoch"
+    },
+    {
+      "name": "description",
+      "type": ["null", "string"],
+      "default": null,
+      "doc": "Transaction description"
+    },
+    {
+      "name": "merchantInfo",
+      "type": [
+        "null",
+        {
+          "type": "record",
+          "name": "MerchantInfo",
+          "fields": [
+            {
+              "name": "merchantId",
+              "type": "string",
+              "doc": "Merchant identifier"
+            },
+            {
+              "name": "merchantName",
+              "type": "string",
+              "doc": "Merchant name"
+            },
+            {
+              "name": "category",
+              "type": ["null", "string"],
+              "default": null,
+              "doc": "Merchant category"
+            }
+          ]
+        }
+      ],
+      "default": null,
+      "doc": "Merchant information for the transaction"
+    },
+    {
+      "name": "status",
+      "type": {
+        "type": "enum", 
+        "name": "TransactionStatus",
+        "symbols": ["PENDING", "COMPLETED", "FAILED", "CANCELLED"]
+      },
+      "default": "PENDING",
+      "doc": "Transaction status"
+    },
+    {
+      "name": "processingInfo",
+      "type": {
+        "type": "record",
+        "name": "ProcessingInfo", 
+        "fields": [
+          {
+            "name": "processedAt",
+            "type": ["null", "long"],
+            "default": null,
+            "doc": "Processing timestamp"
+          },
+          {
+            "name": "processedBy",
+            "type": ["null", "string"], 
+            "default": null,
+            "doc": "Processing system identifier"
+          },
+          {
+            "name": "correlationId",
+            "type": ["null", "string"],
+            "default": null,
+            "doc": "Correlation ID for tracking"
+          }
+        ]
+      },
+      "default": {"processedAt": null, "processedBy": null, "correlationId": null},
+      "doc": "Transaction processing information"
+    }
+  ]
+}

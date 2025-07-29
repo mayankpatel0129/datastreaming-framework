@@ -1,0 +1,124 @@
+spring:
+  application:
+    name: transaction-processor
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:development}
+
+# Processor Configuration
+processor:
+  profile:
+    name: ${PROCESSOR_PROFILE:development}
+    directory: ${PROCESSOR_PROFILE_DIR:src/main/resources/profiles}
+
+# Logging Configuration
+logging:
+  level:
+    com.datastreaming: ${LOG_LEVEL:INFO}
+    org.apache.kafka: WARN
+    com.ibm.mq: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{correlationId}] %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{correlationId}] %logger{36} - %msg%n"
+  file:
+    name: ${LOG_FILE_PATH:logs/transaction-processor.log}
+    max-size: 100MB
+    max-history: 30
+
+# Management and Monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus,info
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+        step: 30s
+      simple:
+        enabled: false
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+        message.processing.duration: true
+        kafka.produce.duration: true
+
+# Server Configuration
+server:
+  port: ${SERVER_PORT:8080}
+  servlet:
+    context-path: /transaction-processor
+
+# Custom Health Indicators
+health:
+  indicators:
+    custom:
+      enabled: true
+
+---
+# Production Profile
+spring:
+  config:
+    activate:
+      on-profile: production
+
+logging:
+  level:
+    root: WARN
+    com.datastreaming: INFO
+  file:
+    name: /var/log/transaction-processor/application.log
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus
+
+processor:
+  profile:
+    name: production
+    directory: /opt/app/config/profiles
+
+---
+# Development Profile
+spring:
+  config:
+    activate:
+      on-profile: development
+
+logging:
+  level:
+    root: INFO
+    com.datastreaming: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+---
+# Test Profile
+spring:
+  config:
+    activate:
+      on-profile: test
+
+logging:
+  level:
+    root: WARN
+    com.datastreaming: DEBUG
+
+processor:
+  profile:
+    name: test
+    directory: src/test/resources/profiles

@@ -1,0 +1,62 @@
+{
+  "contractId": "transaction-mq-v1",
+  "contractType": "json",
+  "version": 1,
+  "description": "MQ Transaction Message Contract Version 1",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "transactionId": {
+        "type": "string",
+        "description": "Unique transaction identifier"
+      },
+      "accountNumber": {
+        "type": "string", 
+        "description": "Account number"
+      },
+      "transactionType": {
+        "type": "string",
+        "enum": ["DEBIT", "CREDIT", "TRANSFER"],
+        "description": "Type of transaction"
+      },
+      "amount": {
+        "type": "number",
+        "description": "Transaction amount"
+      },
+      "currency": {
+        "type": "string",
+        "description": "Currency code"
+      },
+      "timestamp": {
+        "type": "string",
+        "format": "date-time",
+        "description": "Transaction timestamp"
+      },
+      "description": {
+        "type": "string",
+        "description": "Transaction description"
+      },
+      "merchantId": {
+        "type": "string",
+        "description": "Merchant identifier"
+      },
+      "status": {
+        "type": "string",
+        "enum": ["PENDING", "COMPLETED", "FAILED"],
+        "description": "Transaction status"
+      }
+    },
+    "required": ["transactionId", "accountNumber", "transactionType", "amount", "currency", "timestamp"]
+  },
+  "fieldMappings": {
+    "transactionId": "transactionId",
+    "accountNumber": "accountId", 
+    "transactionType": "transactionType",
+    "amount": "amount.value",
+    "currency": "amount.currency",
+    "timestamp": "timestamp",
+    "description": "description",
+    "merchantId": "merchantInfo.merchantId",
+    "status": "status"
+  }
+}
