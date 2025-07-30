@@ -81,8 +81,8 @@ class DistributedMessageTrackerTest {
         String statusJson = objectMapper.writeValueAsString(status);
         
         RecordMetadata metadata = new RecordMetadata(
-            new TopicPartition("test-topic", 0), 0, 100L, 
-            System.currentTimeMillis(), 0, 0
+            new TopicPartition("test-topic", 0), 0L, 0, 100L, 
+            0, 0
         );
         
         when(valueOperations.get("streaming:tracking:" + correlationId))
