@@ -193,6 +193,7 @@ datastreaming:
     bootstrapServers: "localhost:9092"
     securityProtocol: "PLAINTEXT"
     schemaRegistryUrl: "http://localhost:8081"
+    schemaRegistryCredentials: "${SCHEMA_REGISTRY_CREDENTIALS:}"
     batchSize: 16384
     compressionType: "none"
 
