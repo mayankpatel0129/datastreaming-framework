@@ -1,0 +1,88 @@
+{
+  "name": "customer-json",
+  "version": "1.0",
+  "description": "JSON format customer contract for MQ message parsing",
+  "format": "JSON",
+  "properties": {
+    "trimFields": "true",
+    "strictMode": "false",
+    "encoding": "UTF-8"
+  },
+  "fields": [
+    {
+      "name": "customerId",
+      "type": "STRING",
+      "required": true,
+      "jsonPath": "customer_id",
+      "description": "Unique customer identifier",
+      "pattern": "^CUST\\d{6}$"
+    },
+    {
+      "name": "firstName",
+      "type": "STRING",
+      "required": true,
+      "jsonPath": "first_name",
+      "description": "Customer first name"
+    },
+    {
+      "name": "lastName",
+      "type": "STRING",
+      "required": true,
+      "jsonPath": "last_name",
+      "description": "Customer last name"
+    },
+    {
+      "name": "email",
+      "type": "STRING",
+      "required": true,
+      "description": "Customer email address",
+      "pattern": "^[\\w._%+-]+@[\\w.-]+\\.[A-Za-z]{2,}$"
+    },
+    {
+      "name": "age",
+      "type": "INTEGER",
+      "required": false,
+      "defaultValue": "0",
+      "description": "Customer age"
+    },
+    {
+      "name": "isActive",
+      "type": "BOOLEAN",
+      "required": false,
+      "jsonPath": "active_flag",
+      "defaultValue": "true",
+      "description": "Customer active status"
+    },
+    {
+      "name": "creditLimit",
+      "type": "DECIMAL",
+      "required": false,
+      "jsonPath": "credit_limit",
+      "defaultValue": "0.00",
+      "description": "Customer credit limit"
+    },
+    {
+      "name": "registrationDate",
+      "type": "DATETIME",
+      "required": true,
+      "jsonPath": "registration_date",
+      "dateFormat": "yyyy-MM-dd'T'HH:mm:ss",
+      "description": "Customer registration timestamp"
+    },
+    {
+      "name": "birthDate",
+      "type": "DATE",
+      "required": false,
+      "jsonPath": "birth_date",
+      "dateFormat": "yyyy-MM-dd",
+      "description": "Customer birth date"
+    },
+    {
+      "name": "phoneNumber",
+      "type": "STRING",
+      "required": false,
+      "jsonPath": "contact.phone",
+      "description": "Customer phone number"
+    }
+  ]
+}

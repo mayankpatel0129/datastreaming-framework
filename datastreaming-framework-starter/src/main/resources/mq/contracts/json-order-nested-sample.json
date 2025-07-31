@@ -1,0 +1,147 @@
+{
+  "name": "order-json-nested",
+  "version": "2.0",
+  "description": "JSON format order contract with nested structure support",
+  "format": "JSON",
+  "properties": {
+    "trimFields": "true",
+    "strictMode": "true",
+    "encoding": "UTF-8"
+  },
+  "fields": [
+    {
+      "name": "orderId",
+      "type": "STRING",
+      "required": true,
+      "jsonPath": "order.id",
+      "description": "Unique order identifier",
+      "pattern": "^ORD\\d{11}$"
+    },
+    {
+      "name": "customerId", 
+      "type": "STRING",
+      "required": true,
+      "jsonPath": "order.customer.id",
+      "description": "Customer identifier from nested customer object"
+    },
+    {
+      "name": "customerName",
+      "type": "STRING",
+      "required": true,
+      "jsonPath": "order.customer.name",
+      "description": "Customer full name from nested object"
+    },
+    {
+      "name": "customerEmail",
+      "type": "STRING",
+      "required": false,
+      "jsonPath": "order.customer.email",
+      "description": "Customer email from nested object"
+    },
+    {
+      "name": "shippingStreet",
+      "type": "STRING",
+      "required": false,
+      "jsonPath": "order.shipping_address.street",
+      "description": "Shipping street address"
+    },
+    {
+      "name": "shippingCity",
+      "type": "STRING",
+      "required": false,
+      "jsonPath": "order.shipping_address.city",
+      "description": "Shipping city"
+    },
+    {
+      "name": "shippingZip",
+      "type": "STRING",
+      "required": false,
+      "jsonPath": "order.shipping_address.postal_code",
+      "description": "Shipping postal code"
+    },
+    {
+      "name": "totalAmount",
+      "type": "DECIMAL",
+      "required": true,
+      "jsonPath": "order.total_amount",
+      "description": "Order total amount"
+    },
+    {
+      "name": "currency",
+      "type": "STRING",
+      "required": false,
+      "jsonPath": "order.currency",
+      "defaultValue": "USD",
+      "description": "Order currency"
+    },
+    {
+      "name": "firstItemName",
+      "type": "STRING",
+      "required": false,
+      "jsonPath": "order.items[0].name",
+      "description": "First item name from items array"
+    },
+    {
+      "name": "firstItemQuantity",
+      "type": "INTEGER",
+      "required": false,
+      "jsonPath": "order.items[0].quantity",
+      "defaultValue": "1",
+      "description": "First item quantity from items array"
+    },
+    {
+      "name": "firstItemPrice",
+      "type": "DECIMAL",
+      "required": false,
+      "jsonPath": "order.items[0].unit_price",
+      "description": "First item unit price from items array"
+    },
+    {
+      "name": "orderDate",
+      "type": "DATE",
+      "required": true,
+      "jsonPath": "order.created_date",
+      "dateFormat": "yyyy-MM-dd",
+      "description": "Order creation date"
+    },
+    {
+      "name": "orderTimestamp",
+      "type": "DATETIME",
+      "required": true,
+      "jsonPath": "order.created_timestamp", 
+      "dateFormat": "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+      "description": "Order creation timestamp with milliseconds"
+    },
+    {
+      "name": "isPriorityOrder",
+      "type": "BOOLEAN",
+      "required": false,
+      "jsonPath": "order.metadata.priority_flag",
+      "defaultValue": "false",
+      "description": "Priority order flag from metadata"
+    },
+    {
+      "name": "orderStatus",
+      "type": "STRING", 
+      "required": true,
+      "jsonPath": "order.status",
+      "description": "Current order status"
+    },
+    {
+      "name": "paymentMethod",
+      "type": "STRING",
+      "required": false,
+      "jsonPath": "order.payment.method",
+      "defaultValue": "CREDIT_CARD",
+      "description": "Payment method from payment object"
+    },
+    {
+      "name": "itemCount",
+      "type": "INTEGER",
+      "required": false,
+      "jsonPath": "order.item_count",
+      "defaultValue": "0",
+      "description": "Total number of items in order"
+    }
+  ]
+}

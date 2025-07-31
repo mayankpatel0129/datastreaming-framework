@@ -64,6 +64,7 @@ public class MyStreamingApplication {
 - 🔥 **High Throughput** - Optimized for 1000+ TPS processing
 - 🔗 **Multiple MQ Support** - Connect to multiple queue managers simultaneously
 - 📊 **Avro Schema Support** - Native support for Avro message contracts
+- 🗃️ **JSON Message Parsing** - Full JSON support with nested objects & arrays
 - 🔄 **Message Transformation** - Flexible contract-based transformation
 - 📈 **Reconciliation** - Built-in message delivery tracking
 - ⚙️ **Auto-Configuration** - Spring Boot auto-configuration
@@ -95,9 +96,10 @@ public class MyStreamingApplication {
 
 ## 📖 Documentation
 
+- **[Documentation Index](DOCUMENTATION_INDEX.md)** - Complete documentation navigation
 - **[Framework Guide](FRAMEWORK_README.md)** - Comprehensive developer documentation
+- **[MQ Parsing Guide](MQ_PARSING_USER_GUIDE.md)** - JSON, fixed-length & delimited parsing
 - **[Enterprise Deployment Guide](ENTERPRISE_DEPLOYMENT_GUIDE.md)** - Organization-wide adoption guide
-- **[Build Results](BUILD_RESULTS.md)** - Build and test validation results
 - **[Sample Application](datastreaming-sample-app/)** - Complete working example
 
 ## 📦 Modules

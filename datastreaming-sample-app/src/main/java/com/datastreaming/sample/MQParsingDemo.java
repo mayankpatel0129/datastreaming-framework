@@ -33,27 +33,38 @@ public class MQParsingDemo implements CommandLineRunner {
     
     @Override
     public void run(String... args) throws Exception {
+        runAllDemos();
+    }
+    
+    /**
+     * Run all MQ parsing demonstrations
+     */
+    public void runAllDemos() {
         logger.info("=== MQ Message Parsing Demo ===");
         
-        // Demo 1: Parse fixed-length transaction message
-        demoFixedLengthParsing();
-        
-        // Demo 2: Parse CSV customer message
-        demoCSVParsing();
-        
-        // Demo 3: Parse pipe-delimited order message
-        demoPipeDelimitedParsing();
-        
-        // Demo 4: Show transformation capabilities
-        demoTransformation();
-        
-        // Demo 5: Show validation capabilities
-        demoValidation();
-        
-        // Demo 6: Show contract registry info
-        demoContractRegistryInfo();
-        
-        logger.info("=== Demo Complete ===");
+        try {
+            // Demo 1: Parse fixed-length transaction message
+            demoFixedLengthParsing();
+            
+            // Demo 2: Parse CSV customer message
+            demoCSVParsing();
+            
+            // Demo 3: Parse pipe-delimited order message
+            demoPipeDelimitedParsing();
+            
+            // Demo 4: Show transformation capabilities
+            demoTransformation();
+            
+            // Demo 5: Show validation capabilities
+            demoValidation();
+            
+            // Demo 6: Show contract registry info
+            demoContractRegistryInfo();
+            
+            logger.info("=== MQ parsing demo complete ===");
+        } catch (Exception e) {
+            logger.error("Error during MQ parsing demo", e);
+        }
     }
     
     private void demoFixedLengthParsing() {

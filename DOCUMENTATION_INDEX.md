@@ -38,6 +38,8 @@ This index provides quick access to all framework documentation.
 **Key Features Covered:**
 - ✅ Fixed-length message parsing with position-based fields
 - ✅ CSV, TSV, pipe-delimited message support  
+- ✅ **JSON message parsing with nested objects & arrays**
+- ✅ **Custom JSON path mapping (e.g., `order.customer.name`)**
 - ✅ JSON-based externalized contracts
 - ✅ Type-safe processing with automatic conversion
 - ✅ Comprehensive validation & error handling
@@ -111,9 +113,10 @@ This index provides quick access to all framework documentation.
 
 ### 🔄 **Recent Updates**
 
-#### ⭐ **Latest: MQ Message Parsing (v1.0.0)**
-- **New Feature**: Comprehensive MQ message parsing with externalized contracts
-- **Formats Supported**: Fixed-length, CSV, TSV, pipe-delimited, custom
+#### ⭐ **Latest: JSON Message Parsing Support (v1.0.0)**
+- **New Feature**: Complete JSON message parsing with nested object support
+- **Formats Supported**: Fixed-length, CSV, TSV, pipe-delimited, **JSON**, custom
+- **JSON Features**: Nested objects, array access, custom JSON path mapping
 - **Type Safety**: Automatic conversion to Java types with validation
 - **Documentation**: Complete user guide with examples and best practices
 - **Integration**: Seamless Spring Boot auto-configuration
@@ -145,15 +148,13 @@ This index provides quick access to all framework documentation.
 ```
 datastreaming-framework/
 ├── DOCUMENTATION_INDEX.md           # This index (start here)
+├── README.md                        # Project overview
 ├── FRAMEWORK_README.md               # Main framework documentation  
-├── MQ_PARSING_USER_GUIDE.md         # MQ parsing comprehensive guide
-├── MQ_PARSING_SUCCESS_REPORT.md     # Implementation verification report
+├── MQ_PARSING_USER_GUIDE.md         # JSON, fixed-length & delimited parsing guide
 ├── DISTRIBUTED_TRACKING_README.md   # Multi-instance operations
-├── BUILD_RESULTS.md                 # Build and testing status
 ├── ENTERPRISE_DEPLOYMENT_GUIDE.md   # Enterprise deployment patterns
 ├── ERROR_HANDLING_AND_ALERTING_GUIDE.md # Comprehensive error handling guide
-├── TEAMS_INTEGRATION_GUIDE.md       # Microsoft Teams notification setup
-└── README.md                        # Project overview
+└── TEAMS_INTEGRATION_GUIDE.md       # Microsoft Teams notification setup
 ```
 
 **Happy streaming! 🚀**

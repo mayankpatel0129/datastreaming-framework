@@ -198,11 +198,12 @@ public class EnhancedMQConsumerWorker {
         
         try {
             correlationId = extractCorrelationId(message);
+            final String finalCorrelationId = correlationId;
             
             // Process message with circuit breaker and retry policy
             messageProcessingRetryPolicy.execute(() -> {
                 return processingCircuitBreaker.execute(() -> {
-                    processMessage(message, correlationId);
+                    processMessage(message, finalCorrelationId);
                     return null;
                 });
             });

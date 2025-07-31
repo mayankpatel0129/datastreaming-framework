@@ -1,0 +1,162 @@
+{
+  "name": "transaction-json",
+  "version": "1.0",
+  "description": "JSON format financial transaction contract",
+  "format": "JSON", 
+  "properties": {
+    "trimFields": "true",
+    "strictMode": "true",
+    "encoding": "UTF-8"
+  },
+  "fields": [
+    {
+      "name": "transactionId",
+      "type": "STRING",
+      "required": true,
+      "jsonPath": "transaction.id",
+      "description": "Unique transaction identifier",
+      "pattern": "^TXN\\d{12}$"
+    },
+    {
+      "name": "accountNumber",
+      "type": "STRING",
+      "required": true,
+      "jsonPath": "transaction.account.number",
+      "description": "Account number",
+      "pattern": "^\\d{10,16}$"
+    },
+    {
+      "name": "accountType",
+      "type": "STRING",
+      "required": true,
+      "jsonPath": "transaction.account.type",
+      "description": "Account type (CHECKING, SAVINGS, etc.)"
+    },
+    {
+      "name": "amount",
+      "type": "DECIMAL",
+      "required": true,
+      "jsonPath": "transaction.amount",
+      "description": "Transaction amount"
+    },
+    {
+      "name": "currency",
+      "type": "STRING",
+      "required": false,
+      "jsonPath": "transaction.currency",
+      "defaultValue": "USD",
+      "description": "Transaction currency"
+    },
+    {
+      "name": "transactionType",
+      "type": "STRING",
+      "required": true,
+      "jsonPath": "transaction.type",
+      "description": "Transaction type (DEBIT, CREDIT, TRANSFER)"
+    },
+    {
+      "name": "description",
+      "type": "STRING",
+      "required": false,
+      "jsonPath": "transaction.description",
+      "description": "Transaction description"
+    },
+    {
+      "name": "merchantName",
+      "type": "STRING",
+      "required": false,
+      "jsonPath": "transaction.merchant.name",
+      "description": "Merchant name for card transactions"
+    },
+    {
+      "name": "merchantCategory",
+      "type": "STRING",
+      "required": false,
+      "jsonPath": "transaction.merchant.category_code",
+      "description": "Merchant category code"
+    },
+    {
+      "name": "transactionDate",
+      "type": "DATE",
+      "required": true,
+      "jsonPath": "transaction.date",
+      "dateFormat": "yyyy-MM-dd",
+      "description": "Transaction date"
+    },
+    {
+      "name": "transactionTime",
+      "type": "TIME",
+      "required": true,
+      "jsonPath": "transaction.time",
+      "dateFormat": "HH:mm:ss",
+      "description": "Transaction time"
+    },
+    {
+      "name": "processingTimestamp",
+      "type": "DATETIME",
+      "required": true,
+      "jsonPath": "transaction.processing_timestamp",
+      "dateFormat": "yyyy-MM-dd'T'HH:mm:ss.SSSSSS",
+      "description": "Processing timestamp with microseconds"
+    },
+    {
+      "name": "authorizationCode",
+      "type": "STRING",
+      "required": false,
+      "jsonPath": "transaction.authorization.code",
+      "description": "Authorization code for approved transactions"
+    },
+    {
+      "name": "isApproved",
+      "type": "BOOLEAN",
+      "required": true,
+      "jsonPath": "transaction.authorization.approved",
+      "description": "Transaction approval status"
+    },
+    {
+      "name": "riskScore",
+      "type": "INTEGER",
+      "required": false,
+      "jsonPath": "transaction.risk_assessment.score",
+      "defaultValue": "0",
+      "description": "Risk score (0-100)"
+    },
+    {
+      "name": "riskLevel",
+      "type": "STRING",
+      "required": false,
+      "jsonPath": "transaction.risk_assessment.level",
+      "defaultValue": "LOW",
+      "description": "Risk level (LOW, MEDIUM, HIGH)"
+    },
+    {
+      "name": "balanceAfter",
+      "type": "DECIMAL",
+      "required": false,
+      "jsonPath": "transaction.account.balance_after",
+      "description": "Account balance after transaction"
+    },
+    {
+      "name": "feeAmount",
+      "type": "DECIMAL",
+      "required": false,
+      "jsonPath": "transaction.fees.amount",
+      "defaultValue": "0.00",
+      "description": "Transaction fee amount"
+    },
+    {
+      "name": "channelType",
+      "type": "STRING",
+      "required": true,
+      "jsonPath": "transaction.channel.type",
+      "description": "Transaction channel (ATM, ONLINE, MOBILE, etc.)"
+    },
+    {
+      "name": "deviceId",
+      "type": "STRING",
+      "required": false,
+      "jsonPath": "transaction.channel.device_id",
+      "description": "Device identifier for digital channels"
+    }
+  ]
+}

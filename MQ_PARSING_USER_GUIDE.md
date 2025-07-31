@@ -26,8 +26,9 @@ The MQ Message Parsing module enables the Data Streaming Framework to parse vari
 
 ### Supported Features
 
-✅ **Message Formats**: Fixed-length, CSV, TSV, pipe-delimited, custom  
+✅ **Message Formats**: Fixed-length, CSV, TSV, pipe-delimited, **JSON**, custom  
 ✅ **Data Types**: STRING, INTEGER, LONG, DECIMAL, BOOLEAN, DATE, DATETIME, TIME, BINARY, CUSTOM  
+✅ **JSON Support**: Nested objects, array access, custom JSON path mapping  
 ✅ **Validation**: Required fields, pattern matching, length validation, date formatting  
 ✅ **Error Handling**: Detailed exceptions with field-level error reporting  
 ✅ **Performance**: Optimized parsing with minimal memory allocation  
@@ -179,6 +180,135 @@ TX12345678|123.45|USD|20240731143005
 }
 ```
 
+### JSON Messages
+
+JSON (JavaScript Object Notation) messages provide structured data with support for nested objects and arrays.
+
+**Characteristics:**
+- Hierarchical structure with nested objects
+- Array support with indexed access
+- Custom JSON path mapping
+- Type-safe conversion from JSON values
+- Schema-less flexibility with contract validation
+
+**Example Message:**
+```json
+{
+  "customer": {
+    "id": "CUST123456",
+    "name": "John Doe",
+    "contact": {
+      "email": "john.doe@example.com",
+      "phone": "+1-555-0123"
+    }
+  },
+  "order": {
+    "id": "ORD789012",
+    "items": [
+      {
+        "product": "Widget",
+        "quantity": 5,
+        "price": 19.99
+      }
+    ],
+    "total": 99.95,
+    "created": "2024-01-31T14:30:00Z"
+  },
+  "metadata": {
+    "priority": true,
+    "source": "WEB"
+  }
+}
+```
+
+**Contract Definition:**
+```json
+{
+  "name": "json-order",
+  "version": "2.0",
+  "format": "JSON",
+  "properties": {
+    "trimFields": "true",
+    "strictMode": "false"
+  },
+  "fields": [
+    {
+      "name": "customerId",
+      "type": "STRING",
+      "required": true,
+      "jsonPath": "customer.id",
+      "description": "Customer identifier from nested object"
+    },
+    {
+      "name": "customerName", 
+      "type": "STRING",
+      "required": true,
+      "jsonPath": "customer.name",
+      "description": "Customer name"
+    },
+    {
+      "name": "email",
+      "type": "STRING",
+      "required": false,
+      "jsonPath": "customer.contact.email",
+      "description": "Email from nested contact object"
+    },
+    {
+      "name": "orderId",
+      "type": "STRING", 
+      "required": true,
+      "jsonPath": "order.id",
+      "description": "Order identifier"
+    },
+    {
+      "name": "totalAmount",
+      "type": "DECIMAL",
+      "required": true,
+      "jsonPath": "order.total",
+      "description": "Order total amount"
+    },
+    {
+      "name": "firstItemProduct",
+      "type": "STRING",
+      "required": false,
+      "jsonPath": "order.items[0].product",
+      "description": "First item product name from array"
+    },
+    {
+      "name": "firstItemQuantity",
+      "type": "INTEGER",
+      "required": false,
+      "jsonPath": "order.items[0].quantity",
+      "description": "First item quantity from array"
+    },
+    {
+      "name": "orderTimestamp",
+      "type": "DATETIME",
+      "required": true,
+      "jsonPath": "order.created",
+      "dateFormat": "yyyy-MM-dd'T'HH:mm:ss'Z'",
+      "description": "Order creation timestamp"
+    },
+    {
+      "name": "isPriority",
+      "type": "BOOLEAN",
+      "required": false,
+      "jsonPath": "metadata.priority",
+      "defaultValue": "false",
+      "description": "Priority flag from metadata"
+    }
+  ]
+}
+```
+
+**Key JSON Features:**
+
+- **Nested Object Access**: Use dot notation (`customer.contact.email`)
+- **Array Element Access**: Use index notation (`items[0].product`)
+- **Custom JSON Paths**: Map any JSON path to contract fields
+- **Flexible Structure**: Handle varying JSON structures with optional fields
+- **Type Conversion**: Automatic conversion from JSON types to Java types
+
 ## 🔧 Contract Definition
 
 ### Contract Structure
@@ -218,6 +348,7 @@ Every MQ contract must include:
 | `type` | Yes | Data type (STRING, INTEGER, etc.) | All formats |
 | `position` | Yes | Start position (0-based) | Fixed-length only |
 | `length` | Yes | Field length in characters | Fixed-length only |
+| `jsonPath` | No | JSON path for field extraction (e.g., `order.customer.name`) | JSON only |
 | `required` | No | Whether field is mandatory (default: false) | All formats |
 | `description` | No | Field documentation | All formats |
 | `pattern` | No | Regex validation pattern | All formats |

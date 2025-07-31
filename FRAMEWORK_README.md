@@ -1,6 +1,6 @@
 # Data Streaming Framework
 
-A high-performance, enterprise-grade framework for streaming data from MQ queue managers to Kafka topics with comprehensive support for MQ message parsing, transformation, reconciliation, and monitoring.
+A high-performance, enterprise-grade framework for streaming data from MQ queue managers to Kafka topics with comprehensive support for JSON, fixed-length & delimited MQ message parsing, transformation, reconciliation, and monitoring.
 
 ## 🚀 Quick Start Guide
 

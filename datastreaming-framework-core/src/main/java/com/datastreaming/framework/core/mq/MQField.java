@@ -17,6 +17,7 @@ public class MQField {
     private final String description;
     private final String pattern;      // Regex pattern for validation
     private final String dateFormat;   // Date format for DATE/DATETIME fields
+    private final String jsonPath;     // JSON path for JSON format (e.g., "address.street")
     
     @JsonCreator
     public MQField(
@@ -28,7 +29,8 @@ public class MQField {
             @JsonProperty("defaultValue") String defaultValue,
             @JsonProperty("description") String description,
             @JsonProperty("pattern") String pattern,
-            @JsonProperty("dateFormat") String dateFormat) {
+            @JsonProperty("dateFormat") String dateFormat,
+            @JsonProperty("jsonPath") String jsonPath) {
         this.name = name;
         this.type = type != null ? type : MQFieldType.STRING;
         this.position = position;
@@ -38,6 +40,7 @@ public class MQField {
         this.description = description;
         this.pattern = pattern;
         this.dateFormat = dateFormat;
+        this.jsonPath = jsonPath;
     }
     
     // Builder pattern for easier construction
@@ -55,6 +58,7 @@ public class MQField {
     public String getDescription() { return description; }
     public String getPattern() { return pattern; }
     public String getDateFormat() { return dateFormat; }
+    public String getJsonPath() { return jsonPath; }
     
     // Calculated properties
     public int getEndPosition() {
@@ -71,6 +75,10 @@ public class MQField {
     
     public boolean hasDateFormat() {
         return dateFormat != null && !dateFormat.isEmpty();
+    }
+    
+    public boolean hasJsonPath() {
+        return jsonPath != null && !jsonPath.isEmpty();
     }
     
     @Override
@@ -97,6 +105,7 @@ public class MQField {
         private String description;
         private String pattern;
         private String dateFormat;
+        private String jsonPath;
         
         private Builder(String name, MQFieldType type) {
             this.name = name;
@@ -138,9 +147,14 @@ public class MQField {
             return this;
         }
         
+        public Builder jsonPath(String jsonPath) {
+            this.jsonPath = jsonPath;
+            return this;
+        }
+        
         public MQField build() {
             return new MQField(name, type, position, length, required, 
-                             defaultValue, description, pattern, dateFormat);
+                             defaultValue, description, pattern, dateFormat, jsonPath);
         }
     }
 }
