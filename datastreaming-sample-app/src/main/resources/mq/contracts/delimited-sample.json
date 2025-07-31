@@ -1,0 +1,70 @@
+{
+  "name": "customer-csv",
+  "version": "1.0",
+  "description": "CSV format customer data",
+  "format": "DELIMITED",
+  "properties": {
+    "delimiter": ",",
+    "hasQuotes": "true",
+    "quoteChar": "\"",
+    "trimFields": "true",
+    "strictMode": "false",
+    "encoding": "UTF-8"
+  },
+  "fields": [
+    {
+      "name": "customerId",
+      "type": "STRING",
+      "required": true,
+      "description": "Customer ID",
+      "pattern": "^CUST\\d{6}$"
+    },
+    {
+      "name": "firstName",
+      "type": "STRING",
+      "required": true,
+      "description": "Customer first name"
+    },
+    {
+      "name": "lastName",
+      "type": "STRING",
+      "required": true,
+      "description": "Customer last name"
+    },
+    {
+      "name": "email",
+      "type": "STRING",
+      "required": true,
+      "description": "Customer email address",
+      "pattern": "^[\\w\\.-]+@[\\w\\.-]+\\.[a-zA-Z]{2,}$"
+    },
+    {
+      "name": "birthDate",
+      "type": "DATE",
+      "required": false,
+      "description": "Customer birth date",
+      "dateFormat": "yyyy-MM-dd"
+    },
+    {
+      "name": "registrationDate",
+      "type": "DATETIME",
+      "required": true,
+      "description": "Customer registration date and time",
+      "dateFormat": "yyyy-MM-dd HH:mm:ss"
+    },
+    {
+      "name": "isActive",
+      "type": "BOOLEAN",
+      "required": false,
+      "description": "Customer active status",
+      "defaultValue": "true"
+    },
+    {
+      "name": "creditLimit",
+      "type": "DECIMAL",
+      "required": false,
+      "description": "Customer credit limit",
+      "defaultValue": "0.00"
+    }
+  ]
+}

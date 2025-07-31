@@ -2,7 +2,7 @@
 
 ## 🚀 Overview
 
-This document describes the **distributed tracking and aggregate metrics** implementation for the Data Streaming Framework, enabling **cross-instance message reconciliation** and **cluster-wide monitoring** in multi-instance deployments.
+This document describes the **distributed tracking and aggregate metrics** implementation for the Data Streaming Framework, enabling **cross-instance message reconciliation** and **cluster-wide monitoring** in multi-instance deployments. The system works seamlessly with the **MQ message parsing** capabilities to track parsed messages across the entire processing pipeline.
 
 ## 📋 Key Features
 

@@ -1,0 +1,83 @@
+{
+  "name": "transaction-fixed",
+  "version": "1.0",
+  "description": "Fixed-length transaction message format",
+  "format": "FIXED_LENGTH",
+  "properties": {
+    "trimFields": "true",
+    "strictMode": "false",
+    "encoding": "UTF-8"
+  },
+  "fields": [
+    {
+      "name": "transactionId",
+      "type": "STRING",
+      "position": 0,
+      "length": 10,
+      "required": true,
+      "description": "Unique transaction identifier",
+      "pattern": "^[A-Z0-9]{10}$"
+    },
+    {
+      "name": "accountNumber",
+      "type": "STRING",
+      "position": 10,
+      "length": 12,
+      "required": true,
+      "description": "Account number"
+    },
+    {
+      "name": "amount",
+      "type": "DECIMAL",
+      "position": 22,
+      "length": 15,
+      "required": true,
+      "description": "Transaction amount"
+    },
+    {
+      "name": "currency",
+      "type": "STRING",
+      "position": 37,
+      "length": 3,
+      "required": true,
+      "description": "Currency code",
+      "pattern": "^[A-Z]{3}$"
+    },
+    {
+      "name": "transactionDate",
+      "type": "DATE",
+      "position": 40,
+      "length": 8,
+      "required": true,
+      "description": "Transaction date",
+      "dateFormat": "yyyyMMdd"
+    },
+    {
+      "name": "transactionTime",
+      "type": "TIME",
+      "position": 48,
+      "length": 6,
+      "required": true,
+      "description": "Transaction time",
+      "dateFormat": "HHmmss"
+    },
+    {
+      "name": "status",
+      "type": "STRING",
+      "position": 54,
+      "length": 1,
+      "required": false,
+      "description": "Transaction status",
+      "defaultValue": "P"
+    },
+    {
+      "name": "isVip",
+      "type": "BOOLEAN",
+      "position": 55,
+      "length": 1,
+      "required": false,
+      "description": "VIP customer flag",
+      "defaultValue": "0"
+    }
+  ]
+}

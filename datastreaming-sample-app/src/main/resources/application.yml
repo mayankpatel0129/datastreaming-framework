@@ -118,6 +118,30 @@ datastreaming:
     autoReload: true
     reloadIntervalMs: 300000
 
+  # MQ Message Parsing Configuration
+  mq:
+    enabled: true
+    contracts:
+      location: "classpath*:mq/contracts/**/*.json"
+      reloadOnChange: false
+      validateOnStartup: true
+    parsing:
+      strictMode: false
+      trimFields: true
+      defaultEncoding: "UTF-8"
+      maxMessageSize: 1048576
+      enableMetrics: true
+    queueToTopicMapping:
+      "FINANCE.TRANSACTION.QUEUE": "financial-transactions"
+      "PAYMENTS.INPUT.QUEUE": "payment-events"
+      "CUSTOMER.EVENTS.QUEUE": "customer-events"
+      "DEV.TRANSACTION.QUEUE": "dev-transactions"
+    queueToContractMapping:
+      "FINANCE.TRANSACTION.QUEUE": "transaction-fixed"
+      "PAYMENTS.INPUT.QUEUE": "customer-csv"
+      "CUSTOMER.EVENTS.QUEUE": "order-pipe"
+      "DEV.TRANSACTION.QUEUE": "transaction-fixed"
+
 # Application Configuration
 server:
   port: 8080

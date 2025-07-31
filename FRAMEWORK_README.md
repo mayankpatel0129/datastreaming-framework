@@ -1,6 +1,6 @@
 # Data Streaming Framework
 
-A high-performance, enterprise-grade framework for streaming data from MQ queue managers to Kafka topics with support for message transformation, reconciliation, and monitoring.
+A high-performance, enterprise-grade framework for streaming data from MQ queue managers to Kafka topics with comprehensive support for MQ message parsing, transformation, reconciliation, and monitoring.
 
 ## 🚀 Quick Start Guide
 
@@ -41,7 +41,7 @@ datastreaming:
 
 ### 3. Define Message Contracts
 
-Place your Avro schemas in `src/main/resources/contracts/`:
+Place your Avro schemas in `src/main/resources/contracts/` and MQ contracts in `src/main/resources/mq/contracts/`:
 
 **transaction-avro-v1.avsc:**
 ```json
@@ -53,6 +53,20 @@ Place your Avro schemas in `src/main/resources/contracts/`:
     {"name": "transactionId", "type": "string"},
     {"name": "amount", "type": "double"},
     {"name": "timestamp", "type": "long"}
+  ]
+}
+```
+
+**transaction-mq-v1.json:** (MQ message contract)
+```json
+{
+  "name": "transaction-mq-v1",
+  "version": "1.0",
+  "format": "FIXED_LENGTH",
+  "fields": [
+    {"name": "transactionId", "type": "STRING", "position": 0, "length": 10},
+    {"name": "amount", "type": "DECIMAL", "position": 10, "length": 15},
+    {"name": "timestamp", "type": "DATETIME", "position": 25, "length": 14, "dateFormat": "yyyyMMddHHmmss"}
   ]
 }
 ```
@@ -81,8 +95,11 @@ That's it! The framework will automatically:
 ### Core Capabilities
 - ✅ **Multiple MQ Support** - Connect to multiple queue managers simultaneously
 - ✅ **High Throughput** - Optimized for 1000+ TPS processing
+- ✅ **MQ Message Parsing** - Fixed-length, delimited, and custom format support
+- ✅ **Externalized Contracts** - JSON-based message contract definitions
 - ✅ **Avro Schema Support** - Native support for Avro message contracts
 - ✅ **Message Transformation** - Flexible contract-based transformation
+- ✅ **Type-Safe Processing** - Automatic type conversion with validation
 - ✅ **Reconciliation** - Built-in message delivery tracking
 - ✅ **Auto-Configuration** - Spring Boot auto-configuration
 - ✅ **Externalized Config** - Environment-specific configurations
@@ -99,16 +116,16 @@ That's it! The framework will automatically:
 ## 🏗️ Architecture
 
 ```
-┌─────────────┐    ┌─────────────────┐    ┌─────────────────┐    ┌─────────────┐
-│   MQ Queue  │───▶│  Framework      │───▶│  Contract       │───▶│   Kafka     │
-│   Manager   │    │  Consumer       │    │  Transformer    │    │   Topic     │
-└─────────────┘    └─────────────────┘    └─────────────────┘    └─────────────┘
-                            │                       │
-                            ▼                       ▼
-                   ┌─────────────────┐    ┌─────────────────┐
-                   │  Reconciliation │    │   Monitoring    │
-                   │     Service     │    │   & Metrics     │
-                   └─────────────────┘    └─────────────────┘
+┌─────────────┐    ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐    ┌─────────────┐
+│   MQ Queue  │───▶│  Framework      │───▶│  MQ Message     │───▶│  Contract       │───▶│   Kafka     │
+│   Manager   │    │  Consumer       │    │  Parser         │    │  Transformer    │    │   Topic     │
+└─────────────┘    └─────────────────┘    └─────────────────┘    └─────────────────┘    └─────────────┘
+                            │                       │                       │
+                            ▼                       ▼                       ▼
+                   ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+                   │  Reconciliation │    │  MQ Contract    │    │   Monitoring    │
+                   │     Service     │    │   Registry      │    │   & Metrics     │
+                   └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
 ## 📖 Configuration Guide
@@ -283,6 +300,377 @@ public class CustomTransactionTransformer implements MessageTransformer {
     }
 }
 ```
+
+## 🔄 MQ Message Parsing
+
+The framework provides comprehensive support for parsing various MQ message formats using externalized contracts, enabling organizations to handle fixed-length, delimited, and custom message formats with type-safe processing.
+
+### Supported Message Formats
+
+- **Fixed-Length Messages** - Position-based field extraction with configurable padding
+- **Delimited Messages** - CSV, TSV, pipe-separated with quote handling
+- **JSON Messages** - Native JSON parsing and validation
+- **XML Messages** - XML parsing with schema validation
+- **Custom Formats** - Extensible parser interface for proprietary formats
+
+### MQ Contract Configuration
+
+Enable MQ message parsing in your `application.yml`:
+
+```yaml
+datastreaming:
+  # Enable MQ message parsing
+  mq:
+    enabled: true
+    contracts:
+      location: "classpath*:mq/contracts/**/*.json"
+      reloadOnChange: false
+      validateOnStartup: true
+    parsing:
+      strictMode: false
+      trimFields: true
+      defaultEncoding: "UTF-8"
+      maxMessageSize: 1048576
+      enableMetrics: true
+    
+    # Queue to topic mapping
+    queueToTopicMapping:
+      "FINANCE.TRANSACTION.QUEUE": "financial-transactions"
+      "PAYMENTS.INPUT.QUEUE": "payment-events"
+      "CUSTOMER.EVENTS.QUEUE": "customer-events"
+    
+    # Queue to contract mapping
+    queueToContractMapping:
+      "FINANCE.TRANSACTION.QUEUE": "transaction-fixed"
+      "PAYMENTS.INPUT.QUEUE": "customer-csv"
+      "CUSTOMER.EVENTS.QUEUE": "order-pipe"
+```
+
+### Fixed-Length Message Contracts
+
+Define fixed-length message structure with position-based fields:
+
+**transaction-fixed-1.0.json:**
+```json
+{
+  "name": "transaction-fixed",
+  "version": "1.0",
+  "description": "Fixed-length transaction message format",
+  "format": "FIXED_LENGTH",
+  "properties": {
+    "trimFields": "true",
+    "strictMode": "false",
+    "encoding": "UTF-8"
+  },
+  "fields": [
+    {
+      "name": "transactionId",
+      "type": "STRING",
+      "position": 0,
+      "length": 10,
+      "required": true,
+      "description": "Unique transaction identifier",
+      "pattern": "^[A-Z0-9]{10}$"
+    },
+    {
+      "name": "accountNumber", 
+      "type": "STRING",
+      "position": 10,
+      "length": 12,
+      "required": true,
+      "description": "Customer account number"
+    },
+    {
+      "name": "amount",
+      "type": "DECIMAL",
+      "position": 22,
+      "length": 15,
+      "required": true,
+      "description": "Transaction amount"
+    },
+    {
+      "name": "currency",
+      "type": "STRING", 
+      "position": 37,
+      "length": 3,
+      "required": true,
+      "description": "Currency code",
+      "pattern": "^[A-Z]{3}$"
+    },
+    {
+      "name": "transactionDate",
+      "type": "DATE",
+      "position": 40,
+      "length": 8,
+      "required": true,
+      "description": "Transaction date",
+      "dateFormat": "yyyyMMdd"
+    },
+    {
+      "name": "transactionTime",
+      "type": "TIME", 
+      "position": 48,
+      "length": 6,
+      "required": true,
+      "description": "Transaction time",
+      "dateFormat": "HHmmss"
+    },
+    {
+      "name": "status",
+      "type": "STRING",
+      "position": 54, 
+      "length": 1,
+      "required": false,
+      "description": "Transaction status",
+      "defaultValue": "P"
+    },
+    {
+      "name": "isVip",
+      "type": "BOOLEAN",
+      "position": 55,
+      "length": 1, 
+      "required": false,
+      "description": "VIP customer flag",
+      "defaultValue": "0"
+    }
+  ]
+}
+```
+
+**Example Fixed-Length Message:**
+```
+TX12345678ACC123456789000000001234.56USD20240731143005P1
+```
+
+### Delimited Message Contracts
+
+Define CSV, TSV, or custom-delimited message formats:
+
+**customer-csv-1.0.json:**
+```json
+{
+  "name": "customer-csv",
+  "version": "1.0",
+  "description": "CSV format customer data",
+  "format": "DELIMITED",
+  "properties": {
+    "delimiter": ",",
+    "hasQuotes": "true",
+    "quoteChar": "\"",
+    "trimFields": "true",
+    "strictMode": "false",
+    "encoding": "UTF-8"
+  },
+  "fields": [
+    {
+      "name": "customerId",
+      "type": "STRING",
+      "required": true,
+      "description": "Customer ID",
+      "pattern": "^CUST\\d{6}$"
+    },
+    {
+      "name": "firstName",
+      "type": "STRING",
+      "required": true,
+      "description": "Customer first name"
+    },
+    {
+      "name": "lastName", 
+      "type": "STRING",
+      "required": true,
+      "description": "Customer last name"
+    },
+    {
+      "name": "email",
+      "type": "STRING",
+      "required": true,
+      "description": "Customer email address",
+      "pattern": "^[\\w\\.-]+@[\\w\\.-]+\\.[a-zA-Z]{2,}$"
+    },
+    {
+      "name": "birthDate",
+      "type": "DATE",
+      "required": false,
+      "description": "Customer birth date",
+      "dateFormat": "yyyy-MM-dd"
+    },
+    {
+      "name": "registrationDate",
+      "type": "DATETIME", 
+      "required": true,
+      "description": "Customer registration date and time",
+      "dateFormat": "yyyy-MM-dd HH:mm:ss"
+    },
+    {
+      "name": "isActive",
+      "type": "BOOLEAN",
+      "required": false,
+      "description": "Customer active status",
+      "defaultValue": "true"
+    },
+    {
+      "name": "creditLimit",
+      "type": "DECIMAL",
+      "required": false,
+      "description": "Customer credit limit", 
+      "defaultValue": "0.00"
+    }
+  ]
+}
+```
+
+**Example CSV Message:**
+```
+"CUST123456","John","Doe","john.doe@example.com","1990-05-15","2024-01-15 10:30:00","true","5000.00"
+```
+
+### Supported Data Types
+
+The framework supports comprehensive data types with automatic conversion:
+
+| Type | Java Type | Description | Example Values |
+|------|-----------|-------------|----------------|
+| `STRING` | `String` | Text data | `"Hello World"` |
+| `INTEGER` | `Integer` | 32-bit integers | `12345` |
+| `LONG` | `Long` | 64-bit integers | `1234567890L` |
+| `DECIMAL` | `BigDecimal` | Decimal numbers | `1234.56` |
+| `BOOLEAN` | `Boolean` | Boolean values | `true`, `false`, `Y`, `N`, `1`, `0` |
+| `DATE` | `LocalDate` | Date without time | `2024-07-31` |
+| `DATETIME` | `LocalDateTime` | Date with time | `2024-07-31 14:30:05` |
+| `TIME` | `LocalTime` | Time without date | `14:30:05` |
+| `BINARY` | `byte[]` | Binary data | Raw bytes |
+| `CUSTOM` | `String` | Custom types | Application-specific |
+
+### Field Validation Features
+
+- **Required Fields** - Enforce mandatory field presence
+- **Pattern Matching** - Regex validation for field values  
+- **Default Values** - Automatic default value assignment
+- **Length Validation** - Fixed-length field size checking
+- **Date Formatting** - Custom date/time format parsing
+- **Encoding Support** - Configurable character encoding
+
+### Programmatic Usage
+
+Use the MQ parsing services directly in your code:
+
+```java
+@Service
+public class MessageProcessingService {
+    
+    @Autowired
+    private MQMessageParsingService parsingService;
+    
+    @Autowired
+    private MQToKafkaTransformer transformer;
+    
+    public void processMessage(String mqMessage, String contractName) {
+        try {
+            // Parse MQ message using contract
+            Map<String, Object> parsedMessage = parsingService.parseMessage(mqMessage, contractName);
+            
+            // Transform for Kafka publishing
+            Object kafkaMessage = transformer.transform(mqMessage, contractName);
+            
+            // Process the structured data
+            processStructuredData(parsedMessage);
+            
+        } catch (MQMessageParsingException e) {
+            logger.error("Failed to parse MQ message: {}", e.getMessage());
+            // Handle parsing error
+        }
+    }
+    
+    public boolean validateMessage(String mqMessage, String contractName) {
+        return parsingService.validateMessageFormat(mqMessage, contractName);
+    }
+}
+```
+
+### Contract Registry Management
+
+Monitor and manage contracts at runtime:
+
+```java
+@Component
+public class ContractManager {
+    
+    @Autowired
+    private MQContractRegistry contractRegistry;
+    
+    public void showContractInfo() {
+        // Get all loaded contracts
+        Map<String, MQContract> contracts = contractRegistry.getAllContracts();
+        
+        // Get registry statistics
+        var stats = contractRegistry.getStats();
+        logger.info("Loaded {} contracts: {}", stats.getTotalContracts(), stats.getContractsByFormat());
+        
+        // Reload contracts from disk
+        contractRegistry.reloadContracts();
+    }
+    
+    public void registerNewContract(MQContract contract) {
+        contractRegistry.registerContract(contract);
+    }
+}
+```
+
+### Performance Considerations
+
+- **Parser Selection** - Automatic parser selection based on message format
+- **Field Caching** - Contract field definitions are cached for performance
+- **Type Conversion** - Optimized type conversion with minimal object creation
+- **Memory Usage** - Efficient string processing with minimal allocations
+- **Validation** - Configurable strict/lenient modes for performance tuning
+
+### Error Handling
+
+The framework provides detailed error information for parsing failures:
+
+```java
+try {
+    Map<String, Object> result = parsingService.parseMessage(message, "contract-name");
+} catch (MQMessageParsingException e) {
+    // Detailed error information
+    String contractName = e.getContractName();
+    String messageContent = e.getMessageContent(); 
+    int fieldIndex = e.getFieldIndex();
+    
+    logger.error("Parsing failed for contract '{}' at field index {}: {}", 
+                contractName, fieldIndex, e.getMessage());
+}
+```
+
+### Custom Parser Development
+
+Extend the framework with custom message parsers:
+
+```java
+@Component
+public class XMLMessageParser implements MQMessageParser {
+    
+    @Override
+    public Map<String, Object> parse(String messageContent, MQContract contract) 
+            throws MQMessageParsingException {
+        // Custom XML parsing logic
+        return parseXMLMessage(messageContent, contract);
+    }
+    
+    @Override
+    public boolean supports(MQMessageFormat format) {
+        return format == MQMessageFormat.XML;
+    }
+    
+    @Override
+    public MQMessageFormat getSupportedFormat() {
+        return MQMessageFormat.XML;
+    }
+}
+```
+
+The framework automatically discovers and registers custom parsers through Spring's component scanning.
 
 ## 📊 Monitoring & Observability
 
@@ -579,6 +967,7 @@ public class CustomHealthIndicator implements HealthIndicator {
 ## 📞 Support
 
 - **Documentation**: [Framework Wiki](wiki-url)
+- **MQ Parsing Guide**: [MQ_PARSING_USER_GUIDE.md](MQ_PARSING_USER_GUIDE.md)
 - **Issues**: [GitHub Issues](issues-url)  
 - **Discussions**: [GitHub Discussions](discussions-url)
 - **Enterprise Support**: Contact your framework team

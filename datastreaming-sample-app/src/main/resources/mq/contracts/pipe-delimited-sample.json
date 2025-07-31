@@ -1,0 +1,66 @@
+{
+  "name": "order-pipe",
+  "version": "2.0",
+  "description": "Pipe-delimited order message format",
+  "format": "DELIMITED",
+  "properties": {
+    "delimiter": "|",
+    "hasQuotes": "false",
+    "trimFields": "true",
+    "strictMode": "true",
+    "encoding": "UTF-8"
+  },
+  "fields": [
+    {
+      "name": "orderId",
+      "type": "STRING",
+      "required": true,
+      "description": "Order identifier",
+      "pattern": "^ORD\\d{8}$"
+    },
+    {
+      "name": "customerId",
+      "type": "STRING",
+      "required": true,
+      "description": "Customer identifier"
+    },
+    {
+      "name": "productId",
+      "type": "STRING",
+      "required": true,
+      "description": "Product identifier"
+    },
+    {
+      "name": "quantity",
+      "type": "INTEGER",
+      "required": true,
+      "description": "Order quantity"
+    },
+    {
+      "name": "unitPrice",
+      "type": "DECIMAL",
+      "required": true,
+      "description": "Unit price"
+    },
+    {
+      "name": "totalAmount",
+      "type": "DECIMAL",
+      "required": true,
+      "description": "Total order amount"
+    },
+    {
+      "name": "orderDate",
+      "type": "DATETIME",
+      "required": true,
+      "description": "Order timestamp",
+      "dateFormat": "yyyy-MM-dd HH:mm:ss"
+    },
+    {
+      "name": "priority",
+      "type": "STRING",
+      "required": false,
+      "description": "Order priority",
+      "defaultValue": "NORMAL"
+    }
+  ]
+}

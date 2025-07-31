@@ -1,0 +1,43 @@
+# MQ Demo Configuration - Minimal setup for testing MQ parsing capabilities
+spring:
+  application:
+    name: mq-demo-app
+
+# Framework configuration
+datastreaming:
+  enabled: false  # Disable main framework to avoid Kafka/Schema Registry dependencies
+  # Enable only MQ parsing
+  mq:
+    enabled: true
+    contracts:
+      location: "classpath*:mq/contracts/**/*.json"
+      reloadOnChange: false
+      validateOnStartup: true
+    parsing:
+      strictMode: false
+      trimFields: true
+      defaultEncoding: "UTF-8"
+      maxMessageSize: 1048576
+      enableMetrics: false  # Disable metrics to avoid Redis dependency
+
+# Minimal server configuration
+server:
+  port: 0
+
+# Minimal actuator configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+# Logging configuration
+logging:
+  level:
+    com.datastreaming.framework: DEBUG
+    com.datastreaming.sample: INFO
+    org.springframework: WARN
+    org.apache.kafka: WARN
