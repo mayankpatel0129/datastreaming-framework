@@ -1,0 +1,58 @@
+# Alert system configuration for Data Streaming Framework
+
+datastreaming:
+  alerts:
+    enabled: true
+    rateLimitMinutes: 5
+    maxAlertsPerHour: 100
+    
+    notifiers:
+      # Log-based notifier (always enabled)
+      log:
+        enabled: true
+      
+      # Microsoft Teams integration (requires webhook URL)
+      teams:
+        enabled: false
+        webhookUrl: "${TEAMS_WEBHOOK_URL:}"
+        title: "Data Streaming Framework Alert"
+        minLevel: "HIGH"  # Only send HIGH and CRITICAL alerts to Teams
+      
+      # Email notifier (placeholder for future implementation)
+      email:
+        enabled: false
+        smtpHost: "${EMAIL_SMTP_HOST:}"
+        smtpPort: 587
+        username: "${EMAIL_USERNAME:}"
+        password: "${EMAIL_PASSWORD:}"
+        from: "datastreaming-alerts@company.com"
+        to: ["ops-team@company.com"]
+        minLevel: "CRITICAL"  # Only send CRITICAL alerts via email
+      
+      # PagerDuty integration (placeholder for future implementation)
+      pagerduty:
+        enabled: false
+        integrationKey: "${PAGERDUTY_INTEGRATION_KEY:}"
+        minLevel: "CRITICAL"
+        
+  # Circuit breaker configuration
+  resilience:
+    circuitBreaker:
+      enabled: true
+      failureThreshold: 5
+      timeout: 30s
+      retryTimeout: 60s
+      
+    retry:
+      enabled: true
+      maxAttempts: 3
+      initialDelay: 1s
+      maxDelay: 30s
+      backoffMultiplier: 2.0
+
+# Logging configuration for alerts
+logging:
+  level:
+    ALERTS: INFO  # Dedicated logger for structured alerts
+    com.datastreaming.framework.core.alert: DEBUG
+    com.datastreaming.framework.core.resilience: INFO

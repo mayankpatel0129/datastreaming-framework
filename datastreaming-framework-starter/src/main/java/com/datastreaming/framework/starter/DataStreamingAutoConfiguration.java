@@ -6,6 +6,10 @@ import com.datastreaming.framework.core.api.StreamingFramework;
 import com.datastreaming.framework.core.config.StreamingConfiguration;
 import com.datastreaming.framework.avro.AvroMessageTransformer;
 import com.datastreaming.framework.avro.AvroSchemaManager;
+import com.datastreaming.framework.core.alert.AlertService;
+import com.datastreaming.framework.core.alert.LogBasedAlertNotifier;
+import com.datastreaming.framework.core.alert.TeamsAlertNotifier;
+import com.datastreaming.framework.core.health.AlertingHealthIndicator;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -67,5 +71,41 @@ public class DataStreamingAutoConfiguration {
     @ConditionalOnProperty(prefix = "datastreaming.contracts", name = "type", havingValue = "schema-registry")
     public ContractRegistry schemaRegistryContractRegistry() {
         return new SchemaRegistryContractRegistry();
+    }
+    
+    /**
+     * Alert service for system notifications
+     */
+    @Bean
+    @ConditionalOnProperty(name = "datastreaming.alerts.enabled", havingValue = "true", matchIfMissing = true)
+    public AlertService alertService() {
+        return new AlertService();
+    }
+    
+    /**
+     * Log-based alert notifier
+     */
+    @Bean
+    @ConditionalOnProperty(name = "datastreaming.alerts.notifiers.log.enabled", havingValue = "true", matchIfMissing = true)
+    public LogBasedAlertNotifier logBasedAlertNotifier() {
+        return new LogBasedAlertNotifier();
+    }
+    
+    /**
+     * Microsoft Teams alert notifier
+     */
+    @Bean
+    @ConditionalOnProperty(name = "datastreaming.alerts.notifiers.teams.enabled", havingValue = "true")
+    public TeamsAlertNotifier teamsAlertNotifier() {
+        return new TeamsAlertNotifier();
+    }
+    
+    /**
+     * Health indicator for alert service
+     */
+    @Bean
+    @ConditionalOnProperty(name = "datastreaming.alerts.enabled", havingValue = "true", matchIfMissing = true)
+    public AlertingHealthIndicator alertingHealthIndicator() {
+        return new AlertingHealthIndicator();
     }
 }

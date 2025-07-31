@@ -156,7 +156,7 @@ class FixedLengthMessageParserTest {
             MQField.builder("flag1", MQFieldType.BOOLEAN).position(0).length(1).required(true).build(),
             MQField.builder("flag2", MQFieldType.BOOLEAN).position(1).length(1).required(true).build(),
             MQField.builder("flag3", MQFieldType.BOOLEAN).position(2).length(4).required(true).build(),
-            MQField.builder("flag4", MQFieldType.BOOLEAN).position(6).length(1).required(true).build()
+            MQField.builder("flag4", MQFieldType.BOOLEAN).position(7).length(1).required(true).build()
         );
         
         MQContract boolContract = new MQContract(

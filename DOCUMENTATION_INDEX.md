@@ -151,6 +151,8 @@ datastreaming-framework/
 ├── DISTRIBUTED_TRACKING_README.md   # Multi-instance operations
 ├── BUILD_RESULTS.md                 # Build and testing status
 ├── ENTERPRISE_DEPLOYMENT_GUIDE.md   # Enterprise deployment patterns
+├── ERROR_HANDLING_AND_ALERTING_GUIDE.md # Comprehensive error handling guide
+├── TEAMS_INTEGRATION_GUIDE.md       # Microsoft Teams notification setup
 └── README.md                        # Project overview
 ```
 

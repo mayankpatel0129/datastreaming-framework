@@ -106,9 +106,10 @@ public class DelimitedMessageParser implements MQMessageParser {
                 // Check for escaped quotes (double quotes)
                 if (i + 1 < messageContent.length() && 
                     String.valueOf(messageContent.charAt(i + 1)).equals(quoteChar)) {
-                    currentValue.append(quoteChar);
+                    currentValue.append(quoteChar).append(quoteChar);
                     i++; // Skip the next quote
                 } else {
+                    currentValue.append(quoteChar);
                     insideQuotes = !insideQuotes;
                 }
             } else if (charStr.equals(delimiter) && !insideQuotes) {
@@ -149,13 +150,13 @@ public class DelimitedMessageParser implements MQMessageParser {
         boolean hasQuotes = contract.getProperty("hasQuotes", "false").equals("true");
         String quoteChar = contract.getProperty("quoteChar", "\"");
         
-        if (hasQuotes && rawValue.startsWith(quoteChar) && rawValue.endsWith(quoteChar) && rawValue.length() >= 2) {
-            rawValue = rawValue.substring(1, rawValue.length() - 1);
+        if (hasQuotes && rawValue.startsWith(quoteChar) && rawValue.endsWith(quoteChar) && rawValue.length() >= quoteChar.length() * 2) {
+            rawValue = rawValue.substring(quoteChar.length(), rawValue.length() - quoteChar.length());
         }
         
         // Return null/default for empty optional fields
         if (rawValue.isEmpty()) {
-            if (field.isRequired()) {
+            if (field.isRequired() && contract.isStrictMode()) {
                 throw new MQMessageParsingException(
                     "Required field '" + field.getName() + "' is empty",
                     null, contract.getName()

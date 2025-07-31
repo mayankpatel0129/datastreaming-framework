@@ -3,6 +3,8 @@ package com.datastreaming.producer;
 import com.datastreaming.config.ProcessorProfile;
 import com.datastreaming.monitoring.MetricsCollector;
 import com.datastreaming.reconciliation.MessageTracker;
+import com.datastreaming.framework.core.alert.AlertService;
+import com.datastreaming.framework.core.resilience.CircuitBreaker;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.apache.kafka.clients.producer.*;
@@ -27,6 +29,11 @@ public class HighThroughputKafkaProducer {
 
     @Autowired
     private MessageTracker messageTracker;
+    
+    @Autowired(required = false)
+    private AlertService alertService;
+    
+    private CircuitBreaker kafkaCircuitBreaker;
 
     private KafkaProducer<String, String> producer;
     private ExecutorService callbackExecutor;
@@ -42,8 +49,18 @@ public class HighThroughputKafkaProducer {
             this.kafkaConfig = kafkaConfig;
             createProducer();
             createCallbackExecutor();
+            createCircuitBreaker();
             logger.info("High throughput Kafka producer initialized");
         }
+    }
+    
+    private void createCircuitBreaker() {
+        this.kafkaCircuitBreaker = new CircuitBreaker(
+            "kafka-producer",
+            5, // failure threshold
+            java.time.Duration.ofSeconds(30), // timeout
+            java.time.Duration.ofMinutes(1) // retry timeout
+        );
     }
 
     private void createProducer() {
@@ -124,7 +141,12 @@ public class HighThroughputKafkaProducer {
             pendingMessages.decrementAndGet();
             totalErrors.incrementAndGet();
             future.completeExceptionally(e);
-            logger.error("Error sending message to Kafka topic: {}", topic, e);
+            
+            handleKafkaError("Failed to send message to topic: " + topic, e, Map.of(
+                "topic", topic,
+                "correlationId", correlationId,
+                "messageSize", message.length()
+            ));
         }
 
         return future;
@@ -175,7 +197,31 @@ public class HighThroughputKafkaProducer {
     }
 
     public boolean isHealthy() {
-        return isInitialized.get() && producer != null && pendingMessages.get() < 50000; // Configurable threshold
+        if (!isInitialized.get() || producer == null) {
+            return false;
+        }
+        
+        // Check pending messages threshold
+        long pending = pendingMessages.get();
+        if (pending > 50000) { // Configurable threshold
+            return false;
+        }
+        
+        // Check circuit breaker state
+        if (kafkaCircuitBreaker != null && kafkaCircuitBreaker.isOpen()) {
+            return false;
+        }
+        
+        // Check error rate
+        long total = totalMessagesSent.get() + totalErrors.get();
+        if (total > 100) { // Only check after significant traffic
+            double errorRate = (double) totalErrors.get() / total;
+            if (errorRate > 0.05) { // More than 5% error rate
+                return false;
+            }
+        }
+        
+        return true;
     }
 
     @PreDestroy
@@ -207,6 +253,38 @@ public class HighThroughputKafkaProducer {
             logger.info("Kafka producer shutdown completed");
         }
     }
+    
+    private void handleKafkaError(String message, Throwable cause, Map<String, Object> context) {
+        logger.error(message, cause);
+        
+        if (alertService != null) {
+            // Determine alert level based on error characteristics
+            boolean isCritical = isCriticalError(cause);
+            
+            if (isCritical) {
+                alertService.sendCriticalAlert("KafkaProducer", "Critical Kafka Error", message, context, cause);
+            } else {
+                alertService.sendHighAlert("KafkaProducer", "Kafka Error", message, context, cause);
+            }
+        }
+    }
+    
+    private boolean isCriticalError(Throwable cause) {
+        if (cause == null) return false;
+        
+        String errorMessage = cause.getMessage();
+        String errorClass = cause.getClass().getSimpleName();
+        
+        // Critical errors that indicate serious system issues
+        return errorMessage != null && (
+            errorMessage.contains("Authentication failed") ||
+            errorMessage.contains("SSL") ||
+            errorMessage.contains("Connection refused") ||
+            errorMessage.contains("Timeout") ||
+            errorClass.contains("SecurityException") ||
+            errorClass.contains("AuthenticationException")
+        );
+    }
 
     private class ProducerCallback implements Callback {
         private final String topic;
@@ -231,8 +309,11 @@ public class HighThroughputKafkaProducer {
                         messageTracker.recordFailure(correlationId, exception.getMessage());
                         future.completeExceptionally(exception);
                         
-                        logger.error("Failed to send message to topic: {} with correlationId: {}", 
-                                   topic, correlationId, exception);
+                        handleKafkaError("Kafka callback failure for topic: " + topic, exception, Map.of(
+                            "topic", topic,
+                            "correlationId", correlationId,
+                            "callbackError", true
+                        ));
                     } else {
                         totalMessagesSent.incrementAndGet();
                         metricsCollector.recordKafkaSuccess(topic, metadata.partition(), metadata.offset());
@@ -245,7 +326,11 @@ public class HighThroughputKafkaProducer {
                                    topic, metadata.partition(), metadata.offset(), correlationId);
                     }
                 } catch (Exception e) {
-                    logger.error("Error in producer callback", e);
+                    handleKafkaError("Critical error in producer callback", e, Map.of(
+                        "topic", topic,
+                        "correlationId", correlationId,
+                        "criticalError", true
+                    ));
                 }
             });
         }
